@@ -1,5 +1,10 @@
 import React from "react";
-import { Container, Typography } from "@material-ui/core";
+import { Container, Typography, Button } from "@material-ui/core";
+
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../domain/entity/rootState";
+import { calculateValidation } from "../domain/service/validation";
+import validationActions from "../store/validation/actions";
 
 import Basic from "./Basic";
 import Address from "./Address";
@@ -9,6 +14,16 @@ import useStyles from "./styles";
 
 const Profile = () => {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
+  const profile = useSelector((state: RootState) => state.profile);
+
+  const handleSave = () => {
+    const message = calculateValidation(profile);
+
+    dispatch(validationActions.setValidation(message));
+    dispatch(validationActions.setIsStartvalidation(true));
+  };
 
   return (
     <Container maxWidth="sm">
@@ -48,6 +63,15 @@ const Profile = () => {
         職歴
       </Typography>
       <Career />
+      <Button
+        fullWidth
+        className={classes.button}
+        onClick={handleSave}
+        variant="outlined"
+        color="primary"
+      >
+        保存
+      </Button>
     </Container>
   );
 };
