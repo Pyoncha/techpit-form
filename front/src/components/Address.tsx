@@ -9,6 +9,10 @@ import profileActions from "../store/profile/actions";
 import { isPostalcode } from "../domain/service/address";
 import { searchAddressFromPostalcode } from "../store/profile/effects";
 
+import { Profile } from "../domain/entity/profile";
+import { calculateValidation } from "../domain/service/validation";
+import validationActions from "../store/validation/actions";
+
 import useStyles from "./styles";
 
 const Address = () => {
@@ -19,13 +23,27 @@ const Address = () => {
 
   const handleAddressChange = (member: Partial<IAddress>) => {
     dispatch(profileActions.setAddress(member));
+
+    recalculateValidation({ address: { ...profile.address, ...member} });
   };
 
   const handlePostalcodeChange = (code: string) => {
     if (!isPostalcode(code)) return;
     dispatch(profileActions.setAddress({ postalcode: code }));
     dispatch(searchAddressFromPostalcode(code));
-  }
+  };
+
+  const recalculateValidation = (member: Partial<Profile>) => {
+    if (!validation.isStartValidation) return;
+
+    const newProfile = {
+      ...profile,
+      ...member,
+    };
+
+    const message = calculateValidation(newProfile);
+    dispatch(validationActions.setValidation(message));
+  };
 
   return (
     <>

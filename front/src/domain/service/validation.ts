@@ -34,6 +34,20 @@ export const calculateValidation = (profile: Profile) => {
   return message;
 };
 
+export const isValid = (message: Validation) => {
+  const falttenValues = Object.values(message)
+    .map(extractValues)
+    .flat() as string[];
+
+  return falttenValues.every(fv => !fv);
+};
+
+const extractValues = (obj: any): any[] | string => {
+  if (typeof obj === "string") return obj;
+  return Object.values(obj).map(extractValues);
+};
+
+
 const emptyValidation = (target: string, col: string) =>
   isEmpty(target) ? `${col}を入力してください。` : "";
 

@@ -18,12 +18,16 @@ import { College as ICollege } from "../domain/entity/college";
 import profileActions from "../store/profile/actions";
 import { PROFILE } from "../domain/service/profile";
 
+import { calculateValidation } from "../domain/service/validation";
+import validationActions from "../store/validation/actions";
+
 import useStyles from "./styles";
 
 const College = () => {
   const dispatch = useDispatch();
   const colleges = useSelector((state: RootState) => state.colleges);
   const profile = useSelector((state: RootState) => state.profile);
+  const validation = useSelector((state: RootState) => state.validation);
   const classes = useStyles();
 
   const handleChange = (name: string) => {
@@ -36,12 +40,23 @@ const College = () => {
   
   const handleCollegeChange = (member: Partial<ICollege>) => {
     dispatch(profileActions.setCollege(member));
+    recalculateValidation(member);
   };
 
   const handleReset = () => {
     handleCollegeChange({ name: "", faculty: "", department: "" });
     dispatch(collegesActions.setSearchWord(""));
     dispatch(collegesActions.searchCollege.done({ result: [], params: {} }));
+  };
+
+  const recalculateValidation = (member: Partial<ICollege>) => {
+    if (!validation.isStartValidation) return;
+    const newProfile = {
+      ...profile,
+      college: { ...profile.college, ...member }
+    };
+    const message = calculateValidation(newProfile);
+    dispatch(validationActions.setValidation(message));
   };
 
   const currentCollege = colleges.result.filter(
